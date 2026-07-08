@@ -1,0 +1,205 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #12141d;
+  --card: #1d2130;
+  --text: #f2f3f7;
+  --muted: #9aa0b4;
+  --accent: #6c8cff;
+  --danger: #ff5d73;
+}
+
+html, body {
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  animation: fade 0.25s ease;
+}
+
+.screen.hidden {
+  display: none;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.title {
+  font-size: 2.6rem;
+  letter-spacing: 0.04em;
+}
+
+.title-small {
+  font-size: 1.6rem;
+}
+
+.subtitle, .hint {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.pass-label {
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.big-name {
+  font-size: 2.4rem;
+  word-break: break-word;
+}
+
+.big-word {
+  font-size: 2.2rem;
+  word-break: break-word;
+}
+
+.imposter-color {
+  color: var(--danger);
+}
+
+.play-text {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Fixed silhouette: the card must look identical for the imposter and a
+   normal word, whether the text is one line or two. */
+#word-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 40px 20px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #0d0f16;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #0d0f16;
+}
+
+.btn-small {
+  padding: 12px 18px;
+  flex-shrink: 0;
+}
+
+#add-player-form {
+  display: flex;
+  gap: 10px;
+}
+
+#player-name-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.05rem;
+  padding: 12px 14px;
+  border: 1px solid #333a52;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+}
+
+#player-name-input:focus {
+  border-color: var(--accent);
+}
+
+#player-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+#player-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 4px 4px 4px 16px;
+  font-size: 1.05rem;
+  text-align: left;
+  word-break: break-word;
+}
+
+.remove-player {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.add-error {
+  color: var(--danger);
+}
