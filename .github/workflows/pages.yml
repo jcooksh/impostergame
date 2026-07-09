@@ -23,6 +23,9 @@ jobs:
           set -e
           mkdir /tmp/site
           cp index.html app.js style.css words.js README.md /tmp/site/
+          # Custom domain — Pages reads this from the published branch, and the
+          # force-push below would wipe the one GitHub writes there.
+          echo "imposter.undo.it" > /tmp/site/CNAME
           cd /tmp/site
           git init -b gh-pages
           git config user.name "github-actions[bot]"
