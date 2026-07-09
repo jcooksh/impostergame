@@ -31,6 +31,11 @@
         <div id="word-list-toggle" class="toggle-group"></div>
       </div>
 
+      <div class="option-row">
+        <p class="hint" id="imposter-count-hint">Imposters</p>
+        <div id="imposter-count-toggle" class="toggle-group"></div>
+      </div>
+
       <button id="start-game-btn" class="btn btn-primary" disabled>Start game</button>
     </section>
 
@@ -63,14 +68,14 @@
     <section id="screen-play" class="screen hidden">
       <h2 class="title-small">Everyone's in.</h2>
       <p class="play-text"><strong id="first-speaker"></strong> goes first.</p>
-      <p class="play-text">Going around the circle, each player says <strong>one word</strong> that describes the secret word. Then vote on who the imposter is.</p>
+      <p class="play-text">Going around the circle, each player says <strong>one word</strong> that describes the secret word. <span id="vote-text">Then vote on who the imposter is.</span></p>
       <button id="new-round-btn" class="btn">New round</button>
       <button id="show-reveal-btn" class="btn btn-primary">Reveal the imposter</button>
     </section>
 
     <!-- Confirm reveal -->
     <section id="screen-confirm" class="screen hidden">
-      <h2 class="title-small">Reveal the imposter?</h2>
+      <h2 class="title-small" id="confirm-title">Reveal the imposter?</h2>
       <p class="hint">Only do this after everyone has voted.</p>
       <button id="confirm-reveal-btn" class="btn btn-danger">Yes, reveal</button>
       <button id="cancel-reveal-btn" class="btn">Go back</button>
@@ -78,7 +83,7 @@
 
     <!-- Results -->
     <section id="screen-result" class="screen hidden">
-      <p class="pass-label">The imposter was</p>
+      <p class="pass-label" id="result-label">The imposter was</p>
       <h2 id="result-imposter" class="big-name imposter-color"></h2>
       <p class="play-text">The word was <strong id="result-word"></strong></p>
       <button id="play-again-btn" class="btn btn-primary">Play again</button>

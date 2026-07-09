@@ -1,18 +1,21 @@
 # Imposter
 
 A pass-and-play party game for one phone. Everyone is shown the same secret
-word — except one randomly chosen player, the **imposter**, who is told only
-*"You are the imposter"*. No category, no hints.
+word — except the randomly chosen **imposters** (1–4, your pick), who are told
+only *"You are the imposter"*. No category, no hints, and imposters don't
+learn who the other imposters are.
 
 ## How to play
 
-1. Add at least 3 player names (up to 20) and tap **Start game**.
+1. Add at least 3 player names (up to 20), pick a word list and how many
+   imposters (imposters must stay a minority: 2 need 5 players, 3 need 7,
+   4 need 9), and tap **Start game**.
 2. Pass the phone around: each player privately reveals their card, then hides
    it and passes on. The imposter's card looks identical from a distance, so
    nobody can be spotted at a glance.
 3. Going around the circle, each player says **one word** that describes the
-   secret word. The imposter has to bluff.
-4. Vote on who the imposter is, then tap **Reveal the imposter**.
+   secret word. The imposters have to bluff.
+4. Vote on who the imposters are, then tap **Reveal**.
 
 ## Running locally
 

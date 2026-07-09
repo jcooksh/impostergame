@@ -1,19 +1,23 @@
 // Imposter — pass-and-play party game.
-// Everyone sees the same secret word except one randomly chosen imposter,
-// who sees only "You are the imposter" — no category, no hints. The imposter
-// card must be indistinguishable at a glance, so both cards share the same
-// label, color, and silhouette.
+// Everyone sees the same secret word except the randomly chosen imposters,
+// who see only "You are the imposter" — no category, no hints, and imposters
+// don't learn who the other imposters are. The imposter card must be
+// indistinguishable at a glance, so both cards share the same label, color,
+// and silhouette.
 
 const STORAGE_PLAYERS = "imposter.players";
 const STORAGE_USED_WORDS = "imposter.usedWords";
 const STORAGE_WORD_LIST = "imposter.wordList";
+const STORAGE_IMPOSTER_COUNT = "imposter.imposterCount";
 const STORAGE_GAME = "imposter.game";
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 20;
+const MAX_IMPOSTERS = 4;
 
 let players = loadPlayers();
 let wordListId = loadWordListId();
-let game = null; // { word, imposterIndex, viewIndex, firstSpeaker }
+let imposterCount = loadImposterCount();
+let game = null; // { word, imposterIndexes, viewIndex, firstSpeaker }
 
 // Persistence is best-effort: a full quota or blocked storage must never
 // abort rendering or round start.
@@ -108,6 +112,7 @@ function renderPlayers() {
   setupHint.textContent = ready
     ? `${players.length} players ready.`
     : `Add at least ${MIN_PLAYERS} players to start.`;
+  renderImposterToggle();
 }
 
 function showAddError(message) {
@@ -176,6 +181,61 @@ for (const [id, list] of Object.entries(WORD_LISTS)) {
 }
 renderWordListToggle();
 
+// ---------- imposter count selection ----------
+
+const imposterToggle = document.getElementById("imposter-count-toggle");
+const imposterHint = document.getElementById("imposter-count-hint");
+
+function loadImposterCount() {
+  try {
+    const saved = parseInt(localStorage.getItem(STORAGE_IMPOSTER_COUNT), 10);
+    if (Number.isInteger(saved) && saved >= 1 && saved <= MAX_IMPOSTERS) {
+      return saved;
+    }
+  } catch (e) { /* ignore */ }
+  return 1;
+}
+
+// Imposters must stay a strict minority, or the discussion can't out them:
+// 2 imposters need 5 players, 3 need 7, 4 need 9.
+function maxImpostersFor(playerCount) {
+  return Math.max(1, Math.ceil(playerCount / 2) - 1);
+}
+
+function renderImposterToggle() {
+  const max = Math.min(MAX_IMPOSTERS, maxImpostersFor(players.length));
+  if (imposterCount > max) {
+    imposterCount = max;
+    safeSetItem(localStorage, STORAGE_IMPOSTER_COUNT, String(imposterCount));
+  }
+  for (const btn of imposterToggle.children) {
+    const value = Number(btn.dataset.count);
+    btn.disabled = value > max;
+    const active = value === imposterCount;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  }
+  imposterHint.textContent =
+    max < MAX_IMPOSTERS && players.length >= MIN_PLAYERS
+      ? `Imposters (${maxImpostersFor(players.length) + 1}+ need more players)`
+      : "Imposters";
+}
+
+for (let n = 1; n <= MAX_IMPOSTERS; n++) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "toggle-btn";
+  btn.dataset.count = String(n);
+  btn.textContent = String(n);
+  btn.addEventListener("click", () => {
+    imposterCount = n;
+    safeSetItem(localStorage, STORAGE_IMPOSTER_COUNT, String(n));
+    renderImposterToggle();
+  });
+  imposterToggle.appendChild(btn);
+}
+renderImposterToggle();
+
 // ---------- word selection ----------
 
 function randomInt(n) {
@@ -222,9 +282,13 @@ function loadSavedGame() {
     if (
       saved &&
       typeof saved.word === "string" &&
-      Number.isInteger(saved.imposterIndex) &&
-      saved.imposterIndex >= 0 &&
-      saved.imposterIndex < players.length &&
+      Array.isArray(saved.imposterIndexes) &&
+      saved.imposterIndexes.length >= 1 &&
+      saved.imposterIndexes.length < players.length &&
+      saved.imposterIndexes.every(
+        (i) => Number.isInteger(i) && i >= 0 && i < players.length
+      ) &&
+      new Set(saved.imposterIndexes).size === saved.imposterIndexes.length &&
       Number.isInteger(saved.viewIndex) &&
       saved.viewIndex >= 0 &&
       saved.viewIndex <= players.length &&
@@ -239,10 +303,22 @@ function loadSavedGame() {
 
 // ---------- game flow ----------
 
+function pickImposters(count) {
+  const indexes = players.map((_, i) => i);
+  // Partial Fisher-Yates: the first `count` slots end up a uniform sample.
+  for (let i = 0; i < count; i++) {
+    const j = i + randomInt(indexes.length - i);
+    [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+  }
+  return indexes.slice(0, count);
+}
+
 function startRound() {
   game = {
     word: pickWord(),
-    imposterIndex: randomInt(players.length),
+    imposterIndexes: pickImposters(
+      Math.min(imposterCount, maxImpostersFor(players.length))
+    ),
     viewIndex: 0,
     firstSpeaker: players[randomInt(players.length)],
   };
@@ -264,14 +340,24 @@ function showPassScreen() {
 }
 
 function showPlayScreen() {
+  const plural = game.imposterIndexes.length > 1;
   document.getElementById("first-speaker").textContent = game.firstSpeaker;
+  document.getElementById("vote-text").textContent = plural
+    ? `Then vote on who the ${game.imposterIndexes.length} imposters are.`
+    : "Then vote on who the imposter is.";
+  document.getElementById("show-reveal-btn").textContent = plural
+    ? "Reveal the imposters"
+    : "Reveal the imposter";
+  document.getElementById("confirm-title").textContent = plural
+    ? "Reveal the imposters?"
+    : "Reveal the imposter?";
   show("play");
 }
 
 document.getElementById("start-game-btn").addEventListener("click", startRound);
 
 revealBtn.addEventListener("click", () => {
-  const isImposter = game.viewIndex === game.imposterIndex;
+  const isImposter = game.imposterIndexes.includes(game.viewIndex);
   // Same label, size, and color for both cards — nothing distinguishable
   // at a glance from across the table.
   document.getElementById("word-text").textContent = isImposter
@@ -296,7 +382,13 @@ document.getElementById("show-reveal-btn").addEventListener("click", () => show(
 document.getElementById("cancel-reveal-btn").addEventListener("click", () => show("play"));
 
 document.getElementById("confirm-reveal-btn").addEventListener("click", () => {
-  document.getElementById("result-imposter").textContent = players[game.imposterIndex];
+  const names = game.imposterIndexes.map((i) => players[i]);
+  document.getElementById("result-label").textContent =
+    names.length > 1 ? "The imposters were" : "The imposter was";
+  document.getElementById("result-imposter").textContent =
+    names.length > 2
+      ? `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`
+      : names.join(" & ");
   document.getElementById("result-word").textContent = game.word;
   try {
     sessionStorage.removeItem(STORAGE_GAME);
