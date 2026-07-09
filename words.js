@@ -1,6 +1,9 @@
-// Easy, concrete English words. No categories are shown in-game — this flat
-// list keeps the imposter from getting any hint about the word's theme.
-const WORDS = [
+// Word lists selectable on the setup screen. Within a list no categories are
+// shown in-game — each flat list keeps the imposter from getting any hint
+// about the word's theme.
+
+// Easy, concrete English words.
+const CLASSIC_WORDS = [
   "spoon", "fork", "knife", "plate", "cup", "bottle", "bowl", "pan", "kettle", "toaster",
   "fridge", "oven", "sink", "table", "chair", "sofa", "bed", "pillow", "blanket", "lamp",
   "door", "window", "key", "lock", "clock", "mirror", "carpet", "curtain", "shelf", "drawer",
@@ -43,3 +46,49 @@ const WORDS = [
   "tooth", "hair", "hand", "foot", "eye", "ear", "nose", "mouth", "heart", "brain",
   "bone", "muscle", "finger", "thumb", "knee", "elbow", "beard", "mustache", "freckle", "dimple",
 ];
+
+// People from school.
+const SCHOOL_WORDS = [
+  "Emma Aitchison", "Benjamin Allen", "Ben Allum", "Esme Amado", "Sasha Anderson",
+  "Tom Arnold", "Luke Ashley", "Josh Ayres", "Oscar Baker", "Elodie Barker",
+  "Molly Barlow", "Heidi Batchelor-Hannaby", "Phoebe Bax", "Megan Baxter", "Zainab Begum",
+  "Emily Bell", "Emma Blogg", "Eliza Bohn", "Ayla Bowles", "Oli Brandwood",
+  "Eve Brigginshaw", "Noah Brine", "Theo Britton", "Oli Broadwith", "Alice Brooks",
+  "Rose Brown-Cutler", "Alice Bugg", "Holly Bunn", "Teddy Carroll", "Margherita Castello",
+  "Jack Champion", "Hari Chisholm", "Minnie Chongram", "Elliott Clarke", "Emilia Coakley",
+  "Dan Connor", "Olly Cooley", "Max Cooper", "Sophie Crawley", "Holly Crowther",
+  "Ellie Davis", "Alex Deciov", "Finn Delaney", "Keeva Dell", "Will Doran",
+  "Talia Dorras", "Oscar Dowley", "Darcy Drew", "Milly Driver", "Luca Dujardin",
+  "Gene Dunford", "Sophie-Lauren Dunn", "Fynn Dzivenu", "Robert Elderfield", "Chloe Elliot",
+  "Harriet Eveson", "Nell Farquhar", "Nuala Farquharson", "Tilly Firth", "Alice Flanders",
+  "Riley Florido", "Olivia Furmston", "William Gaherty", "Joe Galvin", "Ashish Ganatra",
+  "Ayush Ganatra", "Layla Gardener", "Eva Garner", "Sofia Gibilaro", "Anwen Griffiths",
+  "Woody Hagan", "George Halsey", "Leyla Harley", "Ollie Harris", "Matilda Harrison",
+  "Paige Harrison", "Eliza Hay", "Aurek Hayes", "Louisa Herbert", "Florence Hine",
+  "Harry Hine", "Jonny Hopkins", "Holly Horsfield", "Daniel Horton", "Elodie Hyatt",
+  "Daniel Hyland", "Ben James", "Sam James", "Oriana Jarvis", "Cerys John",
+  "Jennifer Jones", "NiNi Kempe", "Emma Kilcoyne", "Noah Kingston", "Reece Lambley-Webb",
+  "Ieuan Lea", "Izzy Legge", "Evelyn Liddle", "Elsie Lindop", "Martha Lines",
+  "Elina Lopez", "Eleanor Ludlow", "Edward Mancey-Jones", "Amelia Martell", "Olivia Martell",
+  "Zack Martin", "James McGinley", "Fred McQueen", "Harper Melbourne", "Daniel Messulam",
+  "Rose Moloney", "Nimrah Munir", "Sian Murison", "Harry Musker", "Morsal Mutaheri",
+  "Ava Nation", "Jude Newman", "Ariba Niazi", "Heidie Oliver", "Sam Oruci",
+  "Mel Pacitti", "Ella Page", "Maria Palfi", "Issy Parr", "Arin Parry",
+  "Darshan Patel", "Nathaniel Payne", "Charlotte Perks", "Woody Pinnock", "Tilly Plenderleith",
+  "Emily Price", "Emilia Quezada", "Mollie Rees", "Jack Rhodes", "Matilda Richards",
+  "Isobel Roberts", "Douglas Robertson", "Millie Robson", "Jacob Rogers", "Evie Rothery",
+  "Rosa Rutherfurd", "Robin Sales", "Emilia Salway", "Amelie Saunders", "Imogen Scoot",
+  "Ben Silverwood-Cope", "Molly Simpson", "Arthur Size", "Ben Smith", "Ridley Sorrill",
+  "Hector Spiers", "Aonghus Standen", "Sadie Stent", "Eliott Stewart", "Mollie Stewart",
+  "Hannah Stout", "Gemma Sult", "Anna Teslia", "Harriet Thompson", "Isla Titheridge",
+  "Evie Todd", "Sarah Trolley", "Olive Troughton", "Ellie Turner", "Alana Van Deventer",
+  "Ruby Van Duyvenbode", "George Venn", "Izzy Venner", "Hugo Verstringhe", "Elodee Walker",
+  "Daniel Walter", "Edward Watson", "Freddie Watson", "Tilly Weare", "Ffion Webster",
+  "Lily Welbourn", "Ella Wiggs", "Josh Williams", "Izak Wilson", "Joel Winder",
+  "Henry Yarker", "Daisy Yeoman", "Katie Young", "Ellie Zimet",
+];
+
+const WORD_LISTS = {
+  classic: { label: "Classic", words: CLASSIC_WORDS },
+  school: { label: "School", words: SCHOOL_WORDS },
+};

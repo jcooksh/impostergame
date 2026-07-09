@@ -6,11 +6,13 @@
 
 const STORAGE_PLAYERS = "imposter.players";
 const STORAGE_USED_WORDS = "imposter.usedWords";
+const STORAGE_WORD_LIST = "imposter.wordList";
 const STORAGE_GAME = "imposter.game";
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 20;
 
 let players = loadPlayers();
+let wordListId = loadWordListId();
 let game = null; // { word, imposterIndex, viewIndex, firstSpeaker }
 
 // Persistence is best-effort: a full quota or blocked storage must never
@@ -139,6 +141,41 @@ nameInput.addEventListener("input", () => {
   addError.hidden = true;
 });
 
+// ---------- word list selection ----------
+
+const wordListToggle = document.getElementById("word-list-toggle");
+
+function loadWordListId() {
+  try {
+    const saved = localStorage.getItem(STORAGE_WORD_LIST);
+    if (saved && WORD_LISTS[saved]) return saved;
+  } catch (e) { /* ignore */ }
+  return "classic";
+}
+
+function renderWordListToggle() {
+  for (const btn of wordListToggle.children) {
+    const active = btn.dataset.list === wordListId;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  }
+}
+
+for (const [id, list] of Object.entries(WORD_LISTS)) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "toggle-btn";
+  btn.dataset.list = id;
+  btn.textContent = list.label;
+  btn.addEventListener("click", () => {
+    wordListId = id;
+    safeSetItem(localStorage, STORAGE_WORD_LIST, id);
+    renderWordListToggle();
+  });
+  wordListToggle.appendChild(btn);
+}
+renderWordListToggle();
+
 // ---------- word selection ----------
 
 function randomInt(n) {
@@ -146,21 +183,24 @@ function randomInt(n) {
 }
 
 // Avoid repeating a word until the whole list has been used.
+// Used words are tracked separately per list.
 function pickWord() {
+  const words = WORD_LISTS[wordListId].words;
+  const usedKey = `${STORAGE_USED_WORDS}.${wordListId}`;
   let used;
   try {
-    used = new Set(JSON.parse(localStorage.getItem(STORAGE_USED_WORDS)) || []);
+    used = new Set(JSON.parse(localStorage.getItem(usedKey)) || []);
   } catch (e) {
     used = new Set();
   }
-  let available = WORDS.filter((w) => !used.has(w));
+  let available = words.filter((w) => !used.has(w));
   if (available.length === 0) {
     used = new Set();
-    available = WORDS.slice();
+    available = words.slice();
   }
   const word = available[randomInt(available.length)];
   used.add(word);
-  safeSetItem(localStorage, STORAGE_USED_WORDS, JSON.stringify([...used]));
+  safeSetItem(localStorage, usedKey, JSON.stringify([...used]));
   return word;
 }
 

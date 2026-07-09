@@ -203,3 +203,32 @@ body {
 .add-error {
   color: var(--danger);
 }
+
+.option-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.toggle-btn.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
