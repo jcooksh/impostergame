@@ -87,32 +87,46 @@ function savePlayers() {
   safeSetItem(localStorage, STORAGE_PLAYERS, JSON.stringify(players));
 }
 
-function renderPlayers() {
-  playerListEl.innerHTML = "";
-  players.forEach((name, i) => {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.textContent = name;
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "remove-player";
-    remove.textContent = "✕";
-    remove.setAttribute("aria-label", `Remove ${name}`);
-    remove.addEventListener("click", () => {
-      players.splice(i, 1);
-      renderPlayers();
-      savePlayers();
-    });
-    li.append(span, remove);
-    playerListEl.appendChild(li);
-  });
-
+function updateSetupState() {
   const ready = players.length >= MIN_PLAYERS;
   startBtn.disabled = !ready;
   setupHint.textContent = ready
     ? `${players.length} players ready.`
     : `Add at least ${MIN_PLAYERS} players to start.`;
   renderImposterToggle();
+}
+
+function makePlayerItem(name) {
+  const li = document.createElement("li");
+  const span = document.createElement("span");
+  span.textContent = name;
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "remove-player";
+  remove.textContent = "✕";
+  remove.setAttribute("aria-label", `Remove ${name}`);
+  remove.addEventListener("click", () => {
+    if (li.classList.contains("removing")) return;
+    // Update state immediately; the exit animation is only cosmetic, so a
+    // fast second tap elsewhere can't act on stale player indexes.
+    const idx = players.indexOf(name);
+    if (idx !== -1) {
+      players.splice(idx, 1);
+      savePlayers();
+      updateSetupState();
+    }
+    li.classList.add("removing");
+    li.addEventListener("animationend", () => li.remove(), { once: true });
+    setTimeout(() => li.remove(), 400); // in case animationend never fires
+  });
+  li.append(span, remove);
+  return li;
+}
+
+function renderPlayers() {
+  playerListEl.innerHTML = "";
+  players.forEach((name) => playerListEl.appendChild(makePlayerItem(name)));
+  updateSetupState();
 }
 
 function showAddError(message) {
@@ -135,8 +149,11 @@ document.getElementById("add-player-form").addEventListener("submit", (e) => {
   }
   addError.hidden = true;
   players.push(name);
-  renderPlayers();
   savePlayers();
+  const li = makePlayerItem(name);
+  li.classList.add("pop-in");
+  playerListEl.appendChild(li);
+  updateSetupState();
   playerListEl.scrollTop = playerListEl.scrollHeight;
   nameInput.value = "";
   nameInput.focus();
@@ -333,8 +350,10 @@ function showPassScreen() {
   // Disarm the reveal button for a moment so the previous holder can't
   // "accidentally" peek at the next player's card while handing over.
   revealBtn.disabled = true;
+  revealBtn.classList.add("arming");
   setTimeout(() => {
     revealBtn.disabled = false;
+    revealBtn.classList.remove("arming");
   }, 1000);
   show("pass");
 }
@@ -378,6 +397,30 @@ document.getElementById("hide-btn").addEventListener("click", () => {
   }
 });
 
+// ---------- confetti ----------
+
+const CONFETTI_COLORS = ["#6c8cff", "#ff5d73", "#ffd166", "#6ee7a0", "#c792ea"];
+const confettiBox = document.getElementById("confetti");
+
+function launchConfetti() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  confettiBox.innerHTML = "";
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = CONFETTI_COLORS[randomInt(CONFETTI_COLORS.length)];
+    piece.style.setProperty("--fall", `${2 + Math.random() * 1.5}s`);
+    piece.style.setProperty("--delay", `${Math.random() * 0.6}s`);
+    piece.style.setProperty("--drift", `${randomInt(160) - 80}px`);
+    piece.style.setProperty("--spin", `${360 + randomInt(540)}deg`);
+    confettiBox.appendChild(piece);
+  }
+  setTimeout(() => {
+    confettiBox.innerHTML = "";
+  }, 4800);
+}
+
 document.getElementById("show-reveal-btn").addEventListener("click", () => show("confirm"));
 document.getElementById("cancel-reveal-btn").addEventListener("click", () => show("play"));
 
@@ -394,6 +437,7 @@ document.getElementById("confirm-reveal-btn").addEventListener("click", () => {
     sessionStorage.removeItem(STORAGE_GAME);
   } catch (e) { /* ignore */ }
   show("result");
+  launchConfetti();
 });
 
 document.getElementById("new-round-btn").addEventListener("click", () => {

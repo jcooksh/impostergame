@@ -51,9 +51,11 @@ body {
   display: none;
 }
 
+/* Children do the motion (rise); the screen itself only fades so the two
+   don't compound into a double slide. */
 @keyframes fade {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .title {
@@ -236,4 +238,174 @@ body {
 .toggle-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* ---------- motion ---------- */
+
+.screen {
+  position: relative;
+}
+
+/* Every screen's content cascades in. Display none -> flex on each swap
+   restarts these, so the stagger plays on every screen change. */
+.screen > * {
+  animation: rise 0.35s ease both;
+}
+.screen > *:nth-child(2) { animation-delay: 0.05s; }
+.screen > *:nth-child(3) { animation-delay: 0.1s; }
+.screen > *:nth-child(4) { animation-delay: 0.15s; }
+.screen > *:nth-child(5) { animation-delay: 0.2s; }
+.screen > *:nth-child(n+6) { animation-delay: 0.25s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.screen > .title,
+.screen > .title-small {
+  animation: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.big-name,
+.big-word {
+  animation: pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+#word-card {
+  animation: card-flip 0.5s cubic-bezier(0.3, 1.3, 0.4, 1) both;
+}
+
+@keyframes card-flip {
+  from { opacity: 0; transform: perspective(700px) rotateX(50deg) translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+#result-imposter {
+  animation: reveal-zoom 0.6s cubic-bezier(0.2, 1.3, 0.35, 1) 0.15s both;
+}
+
+@keyframes reveal-zoom {
+  from { opacity: 0; transform: scale(2.2); filter: blur(6px); }
+  to   { opacity: 1; transform: scale(1); filter: none; }
+}
+
+.btn,
+.toggle-btn {
+  transition: transform 0.15s ease, opacity 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease, filter 0.2s ease, box-shadow 0.3s ease;
+}
+
+@media (hover: hover) {
+  .btn:hover:enabled,
+  .toggle-btn:hover:enabled {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+}
+
+.btn:active:enabled,
+.toggle-btn:active:enabled {
+  transform: scale(0.96);
+  transition-duration: 0.05s;
+}
+
+.toggle-btn.active {
+  animation: toggle-pop 0.3s ease;
+}
+
+@keyframes toggle-pop {
+  50% { transform: scale(1.08); }
+}
+
+#start-game-btn:enabled {
+  animation: rise 0.35s ease 0.25s both, breathe 2.6s ease-in-out 1s infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 140, 255, 0.4); }
+  50%      { box-shadow: 0 0 20px 2px rgba(108, 140, 255, 0.25); }
+}
+
+.pop-in {
+  animation: pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+#player-list li.removing {
+  animation: shrink-out 0.22s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes shrink-out {
+  from { max-height: 64px; }
+  to {
+    opacity: 0;
+    transform: scale(0.85);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+/* Progress bar while the reveal button is disarmed during the hand-over. */
+#reveal-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+#reveal-btn.arming::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  background: #0d0f16;
+  opacity: 0.3;
+  transform-origin: left;
+  animation: arm 1s linear both;
+}
+
+@keyframes arm {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+#confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  animation: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -18px;
+  width: 9px;
+  height: 15px;
+  border-radius: 2px;
+  animation: confetti-fall var(--fall, 2.5s) var(--delay, 0s) ease-in both;
+}
+
+@keyframes confetti-fall {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to   { transform: translate3d(var(--drift, 0px), 105vh, 0) rotate(var(--spin, 540deg)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
