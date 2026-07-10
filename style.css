@@ -32,11 +32,9 @@ body {
   width: 100%;
   max-width: 430px;
   min-height: 100%;
-  padding: 24px 24px 88px; /* keep content clear of the party toggle */
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1; /* above the party background layer */
 }
 
 .screen {
@@ -304,17 +302,19 @@ body {
     color 0.2s ease, filter 0.2s ease, box-shadow 0.3s ease;
 }
 
+/* On hover the movement comes from the JS pointer tilt (inline transform);
+   CSS adds the light and depth. */
 @media (hover: hover) {
   .btn:hover:enabled,
   .toggle-btn:hover:enabled {
-    transform: translateY(-2px);
     filter: brightness(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   }
 }
 
 .btn:active:enabled,
 .toggle-btn:active:enabled {
-  transform: scale(0.96);
+  transform: scale(0.96) !important; /* must beat the inline tilt transform */
   transition-duration: 0.05s;
 }
 
@@ -399,167 +399,6 @@ body {
 @keyframes confetti-fall {
   from { transform: translate3d(0, 0, 0) rotate(0deg); }
   to   { transform: translate3d(var(--drift, 0px), 105vh, 0) rotate(var(--spin, 540deg)); }
-}
-
-/* ---------- party mode ---------- */
-
-#party-toggle {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 10;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid #333a52;
-  background: var(--card);
-  font-size: 1.4rem;
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0.75;
-  transition: transform 0.2s ease, box-shadow 0.3s ease, opacity 0.2s ease;
-  touch-action: manipulation;
-}
-
-#party-toggle:active {
-  transform: scale(0.88);
-}
-
-#party-toggle-icon {
-  display: inline-block;
-}
-
-body.party #party-toggle {
-  opacity: 1;
-  border-color: var(--accent);
-  box-shadow: 0 0 18px rgba(108, 140, 255, 0.6);
-}
-
-/* Spin the icon, not the button — a moving hit target is hard to tap. */
-body.party #party-toggle-icon {
-  animation: fab-spin 2.5s linear infinite;
-}
-
-@keyframes fab-spin {
-  to { transform: rotate(360deg); }
-}
-
-#party-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-#party-bg::before {
-  content: "";
-  position: absolute;
-  inset: -60%;
-  background: conic-gradient(from 0deg, #ff5d73, #ffd166, #6ee7a0, #6c8cff, #c792ea, #ff5d73);
-  opacity: 0.13;
-  animation: party-spin 14s linear infinite;
-}
-
-@keyframes party-spin {
-  to { transform: rotate(360deg); }
-}
-
-.party-emoji {
-  position: absolute;
-  bottom: -60px;
-  font-size: var(--size, 24px);
-  animation: float-up var(--dur, 6s) linear forwards;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
-}
-
-@keyframes float-up {
-  0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
-  10%  { opacity: 1; }
-  100% { transform: translate3d(var(--sway, 0px), -110vh, 0) rotate(var(--twirl, 360deg)); opacity: 1; }
-}
-
-/* The whole app slowly cycles hue, so every accent color raves along. */
-body.party #app {
-  animation: hue-cycle 12s linear infinite;
-}
-
-@keyframes hue-cycle {
-  to { filter: hue-rotate(360deg); }
-}
-
-body.party .screen {
-  animation: crazy-in 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
-}
-
-@keyframes crazy-in {
-  from { opacity: 0; transform: scale(0.7) rotate(-4deg); }
-  to   { opacity: 1; transform: none; }
-}
-
-body.party .screen > .title,
-body.party .screen > .title-small {
-  background: linear-gradient(90deg, #ff5d73, #ffd166, #6ee7a0, #6c8cff, #c792ea, #ff5d73);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both,
-    rainbow-slide 3s linear infinite,
-    wobble 2.4s ease-in-out 0.5s infinite;
-}
-
-@keyframes rainbow-slide {
-  to { background-position: 300% 0; }
-}
-
-@keyframes wobble {
-  0%, 100% { transform: rotate(-1.5deg) scale(1); }
-  50%      { transform: rotate(1.5deg) scale(1.04); }
-}
-
-body.party .big-name,
-body.party .big-word {
-  animation: pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both,
-    neon 1.6s ease-in-out 0.5s infinite;
-}
-
-@keyframes neon {
-  0%, 100% { text-shadow: 0 0 8px rgba(108, 140, 255, 0.8), 0 0 26px rgba(108, 140, 255, 0.4); }
-  50%      { text-shadow: 0 0 14px rgba(255, 93, 115, 0.9), 0 0 42px rgba(255, 93, 115, 0.5); }
-}
-
-body.party .btn-primary {
-  background: linear-gradient(270deg, #6c8cff, #c792ea, #ff5d73, #ffd166, #6c8cff);
-  background-size: 400% 100%;
-  animation: rainbow-slide 4s linear infinite;
-}
-
-body.party #start-game-btn:enabled {
-  animation: rise 0.35s ease 0.25s both,
-    breathe 2.6s ease-in-out 1s infinite,
-    rainbow-slide 4s linear infinite;
-}
-
-body.party #word-card {
-  box-shadow: 0 0 26px rgba(199, 146, 234, 0.3);
-  animation: card-flip 0.5s cubic-bezier(0.3, 1.3, 0.4, 1) both,
-    bob 3s ease-in-out 0.6s infinite;
-}
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0) rotate(-0.6deg); }
-  50%      { transform: translateY(-8px) rotate(0.6deg); }
-}
-
-body.party #player-list li {
-  transition: transform 0.2s ease;
-}
-
-@media (hover: hover) {
-  body.party #player-list li:hover {
-    transform: translateX(5px) rotate(-1deg);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -9,7 +9,6 @@ const STORAGE_PLAYERS = "imposter.players";
 const STORAGE_USED_WORDS = "imposter.usedWords";
 const STORAGE_WORD_LIST = "imposter.wordList";
 const STORAGE_IMPOSTER_COUNT = "imposter.imposterCount";
-const STORAGE_PARTY = "imposter.party";
 const STORAGE_GAME = "imposter.game";
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 20;
@@ -398,53 +397,40 @@ document.getElementById("hide-btn").addEventListener("click", () => {
   }
 });
 
-// ---------- party mode ----------
-
-const PARTY_EMOJI = ["✨", "🎉", "🪩", "🌈", "⭐", "💫", "🎊", "🔥", "🕺", "💃"];
-const partyToggle = document.getElementById("party-toggle");
-const partyBg = document.getElementById("party-bg");
-let partyMode = false;
-try {
-  partyMode = localStorage.getItem(STORAGE_PARTY) === "1";
-} catch (e) { /* ignore */ }
-let partyTimer = null;
+// ---------- 3D button tilt ----------
 
 function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function spawnPartyEmoji() {
-  if (partyBg.childElementCount > 24) return;
-  const emoji = document.createElement("span");
-  emoji.className = "party-emoji";
-  emoji.textContent = PARTY_EMOJI[randomInt(PARTY_EMOJI.length)];
-  emoji.style.left = `${Math.random() * 100}%`;
-  emoji.style.setProperty("--size", `${18 + randomInt(26)}px`);
-  emoji.style.setProperty("--dur", `${4 + Math.random() * 4}s`);
-  emoji.style.setProperty("--sway", `${randomInt(120) - 60}px`);
-  emoji.style.setProperty("--twirl", `${randomInt(720) - 360}deg`);
-  emoji.addEventListener("animationend", () => emoji.remove(), { once: true });
-  partyBg.appendChild(emoji);
-}
+// Buttons lean toward the cursor like physical keys. Hover-capable
+// devices only; touch gets the :active press instead.
+if (window.matchMedia("(hover: hover)").matches) {
+  let tiltedBtn = null;
 
-function applyPartyMode() {
-  document.body.classList.toggle("party", partyMode);
-  partyToggle.setAttribute("aria-pressed", String(partyMode));
-  partyBg.hidden = !partyMode;
-  if (partyMode && !partyTimer && !reducedMotion()) {
-    partyTimer = setInterval(spawnPartyEmoji, 450);
-  } else if (!partyMode && partyTimer) {
-    clearInterval(partyTimer);
-    partyTimer = null;
-    partyBg.innerHTML = "";
-  }
-}
+  const resetTilt = () => {
+    if (tiltedBtn) {
+      tiltedBtn.style.transform = "";
+      tiltedBtn = null;
+    }
+  };
 
-partyToggle.addEventListener("click", () => {
-  partyMode = !partyMode;
-  safeSetItem(localStorage, STORAGE_PARTY, partyMode ? "1" : "0");
-  applyPartyMode();
-});
+  document.addEventListener("mousemove", (e) => {
+    if (reducedMotion()) return;
+    const btn = e.target.closest(".btn, .toggle-btn");
+    if (btn !== tiltedBtn) resetTilt();
+    if (!btn || btn.disabled) return;
+    tiltedBtn = btn;
+    const rect = btn.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    btn.style.transform =
+      `perspective(600px) rotateX(${(-y * 10).toFixed(2)}deg)` +
+      ` rotateY(${(x * 10).toFixed(2)}deg) translateY(-2px)`;
+  });
+
+  document.documentElement.addEventListener("mouseleave", resetTilt);
+}
 
 // ---------- confetti ----------
 
@@ -454,8 +440,7 @@ const confettiBox = document.getElementById("confetti");
 function launchConfetti() {
   if (reducedMotion()) return;
   confettiBox.innerHTML = "";
-  const count = partyMode ? 140 : 60;
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < 60; i++) {
     const piece = document.createElement("span");
     piece.className = "confetti-piece";
     piece.style.left = `${Math.random() * 100}%`;
@@ -530,7 +515,6 @@ document.getElementById("abandon-btn").addEventListener("click", () => {
 // ---------- init ----------
 
 renderPlayers();
-applyPartyMode();
 if (loadSavedGame()) {
   show("resume");
 } else {
