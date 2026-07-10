@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#12141d">
+  <title>Imposter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+
+    <!-- Setup: add players -->
+    <section id="screen-setup" class="screen">
+      <h1 class="title">Imposter</h1>
+      <p class="subtitle">Everyone gets the same word — except one of you.</p>
+
+      <form id="add-player-form" autocomplete="off">
+        <input type="text" id="player-name-input" placeholder="Player name" maxlength="20">
+        <button type="submit" class="btn btn-small">Add</button>
+      </form>
+      <p id="add-error" class="hint add-error" hidden></p>
+
+      <ul id="player-list"></ul>
+
+      <p id="setup-hint" class="hint">Add at least 3 players to start.</p>
+
+      <div class="option-row">
+        <p class="hint">Word list</p>
+        <div id="word-list-toggle" class="toggle-group"></div>
+      </div>
+
+      <div class="option-row">
+        <p class="hint" id="imposter-count-hint">Imposters</p>
+        <div id="imposter-count-toggle" class="toggle-group"></div>
+      </div>
+
+      <button id="start-game-btn" class="btn btn-primary" disabled>Start game</button>
+    </section>
+
+    <!-- Resume a round interrupted by a refresh -->
+    <section id="screen-resume" class="screen hidden">
+      <h2 class="title-small">A round is in progress.</h2>
+      <p class="hint">Looks like the page reloaded mid-round.</p>
+      <button id="resume-btn" class="btn btn-primary">Resume round</button>
+      <button id="abandon-btn" class="btn">Abandon round</button>
+    </section>
+
+    <!-- Pass the phone to the next player -->
+    <section id="screen-pass" class="screen hidden">
+      <p class="pass-label">Pass the phone to</p>
+      <h2 id="pass-name" class="big-name"></h2>
+      <button id="reveal-btn" class="btn btn-primary">I'm ready — show me</button>
+      <p class="hint">Make sure nobody else is looking.</p>
+    </section>
+
+    <!-- Secret word / imposter reveal -->
+    <section id="screen-word" class="screen hidden">
+      <div id="word-card">
+        <p id="word-label" class="pass-label">Only you can see this</p>
+        <h2 id="word-text" class="big-word"></h2>
+      </div>
+      <button id="hide-btn" class="btn btn-primary">Got it — hide</button>
+    </section>
+
+    <!-- Everyone has seen their word -->
+    <section id="screen-play" class="screen hidden">
+      <h2 class="title-small">Everyone's in.</h2>
+      <p class="play-text"><strong id="first-speaker"></strong> goes first.</p>
+      <p class="play-text">Going around the circle, each player says <strong>one word</strong> that describes the secret word. <span id="vote-text">Then vote on who the imposter is.</span></p>
+      <button id="new-round-btn" class="btn">New round</button>
+      <button id="show-reveal-btn" class="btn btn-primary">Reveal the imposter</button>
+    </section>
+
+    <!-- Confirm reveal -->
+    <section id="screen-confirm" class="screen hidden">
+      <h2 class="title-small" id="confirm-title">Reveal the imposter?</h2>
+      <p class="hint">Only do this after everyone has voted.</p>
+      <button id="confirm-reveal-btn" class="btn btn-danger">Yes, reveal</button>
+      <button id="cancel-reveal-btn" class="btn">Go back</button>
+    </section>
+
+    <!-- Results -->
+    <section id="screen-result" class="screen hidden">
+      <p class="pass-label" id="result-label">The imposter was</p>
+      <h2 id="result-imposter" class="big-name imposter-color"></h2>
+      <p class="play-text">The word was <strong id="result-word"></strong></p>
+      <button id="play-again-btn" class="btn btn-primary">Play again</button>
+      <button id="edit-players-btn" class="btn">Change players</button>
+      <div id="confetti" aria-hidden="true"></div>
+    </section>
+
+  </main>
+
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
