@@ -9,6 +9,7 @@ const STORAGE_PLAYERS = "imposter.players";
 const STORAGE_USED_WORDS = "imposter.usedWords";
 const STORAGE_WORD_LIST = "imposter.wordList";
 const STORAGE_IMPOSTER_COUNT = "imposter.imposterCount";
+const STORAGE_PARTY = "imposter.party";
 const STORAGE_GAME = "imposter.game";
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 20;
@@ -397,15 +398,64 @@ document.getElementById("hide-btn").addEventListener("click", () => {
   }
 });
 
+// ---------- party mode ----------
+
+const PARTY_EMOJI = ["✨", "🎉", "🪩", "🌈", "⭐", "💫", "🎊", "🔥", "🕺", "💃"];
+const partyToggle = document.getElementById("party-toggle");
+const partyBg = document.getElementById("party-bg");
+let partyMode = false;
+try {
+  partyMode = localStorage.getItem(STORAGE_PARTY) === "1";
+} catch (e) { /* ignore */ }
+let partyTimer = null;
+
+function reducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function spawnPartyEmoji() {
+  if (partyBg.childElementCount > 24) return;
+  const emoji = document.createElement("span");
+  emoji.className = "party-emoji";
+  emoji.textContent = PARTY_EMOJI[randomInt(PARTY_EMOJI.length)];
+  emoji.style.left = `${Math.random() * 100}%`;
+  emoji.style.setProperty("--size", `${18 + randomInt(26)}px`);
+  emoji.style.setProperty("--dur", `${4 + Math.random() * 4}s`);
+  emoji.style.setProperty("--sway", `${randomInt(120) - 60}px`);
+  emoji.style.setProperty("--twirl", `${randomInt(720) - 360}deg`);
+  emoji.addEventListener("animationend", () => emoji.remove(), { once: true });
+  partyBg.appendChild(emoji);
+}
+
+function applyPartyMode() {
+  document.body.classList.toggle("party", partyMode);
+  partyToggle.setAttribute("aria-pressed", String(partyMode));
+  partyBg.hidden = !partyMode;
+  if (partyMode && !partyTimer && !reducedMotion()) {
+    partyTimer = setInterval(spawnPartyEmoji, 450);
+  } else if (!partyMode && partyTimer) {
+    clearInterval(partyTimer);
+    partyTimer = null;
+    partyBg.innerHTML = "";
+  }
+}
+
+partyToggle.addEventListener("click", () => {
+  partyMode = !partyMode;
+  safeSetItem(localStorage, STORAGE_PARTY, partyMode ? "1" : "0");
+  applyPartyMode();
+});
+
 // ---------- confetti ----------
 
 const CONFETTI_COLORS = ["#6c8cff", "#ff5d73", "#ffd166", "#6ee7a0", "#c792ea"];
 const confettiBox = document.getElementById("confetti");
 
 function launchConfetti() {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (reducedMotion()) return;
   confettiBox.innerHTML = "";
-  for (let i = 0; i < 60; i++) {
+  const count = partyMode ? 140 : 60;
+  for (let i = 0; i < count; i++) {
     const piece = document.createElement("span");
     piece.className = "confetti-piece";
     piece.style.left = `${Math.random() * 100}%`;
@@ -480,6 +530,7 @@ document.getElementById("abandon-btn").addEventListener("click", () => {
 // ---------- init ----------
 
 renderPlayers();
+applyPartyMode();
 if (loadSavedGame()) {
   show("resume");
 } else {
